@@ -34,8 +34,8 @@ const register = async (req, res, next) => {
     });
     res.cookie("access_token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // true in production (HTTPS)
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production" ? true : false, // true in production (HTTPS)
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
