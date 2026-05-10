@@ -1,0 +1,43 @@
+import api from "../lib/api";
+
+export type Note = {
+  _id: string;
+  title: string;
+  content?: string;
+  tags?: string[];
+  updatedAt?: string;
+  createdAt?: string;
+};
+
+export const getNotes = async (): Promise<Note[]> => {
+  try {
+    const res = await api.get("/notes");
+    return res.data.notes as Note[];
+  } catch (err: any) {
+    throw new Error(err?.response?.data?.message || "Failed to fetch notes");
+  }
+};
+
+export const createNote = async (
+  payload?: Partial<Pick<Note, "title" | "content" | "tags">>
+): Promise<Note> => {
+  try {
+    const res = await api.post("/notes", payload ?? {});
+    return res.data.note as Note;
+  } catch (err: any) {
+    throw new Error(err?.response?.data?.message || "Failed to create note");
+  }
+};
+
+export async function getNoteById(id: string) {
+  const res = await api.get(`/notes/${id}`);
+  return res.data.note as Note;
+}
+
+export async function updateNote(
+  id: string,
+  payload: Partial<Pick<Note, "title" | "content" | "tags">>
+) {
+  const res = await api.patch(`/notes/${id}`, payload);
+  return res.data.note as Note;
+}
