@@ -1,5 +1,6 @@
 // src/pages/LandingPage.tsx
 import React from "react";
+import { BookOpen, Bot, Zap, type LucideIcon } from "lucide-react";
 
 const LandingPage: React.FC = () => {
   return (
@@ -65,17 +66,17 @@ const LandingPage: React.FC = () => {
 
         <div className="grid-3">
           <FeatureCard
-            emoji="📚"
+            icon={BookOpen}
             title="Centralize your knowledge"
             text="Write notes or upload PDFs, docs and articles. Organize them into spaces for DSA, React, job prep and more."
           />
           <FeatureCard
-            emoji="🤖"
+            icon={Bot}
             title="Chat with your own data"
             text="Ask questions like ChatGPT, but answers come only from your notes and documents – never the public internet."
           />
           <FeatureCard
-            emoji="⚡️"
+            icon={Zap}
             title="Revise smarter"
             text="Generate summaries, flashcards and revision checklists from your existing content with one click."
           />
@@ -147,7 +148,7 @@ const LandingPage: React.FC = () => {
               <li>Priority processing &amp; backups</li>
               <li>Export to PDF / Anki</li>
             </ul>
-            <button className="btn btn-primary-full">Join waitlist</button>
+            <button className="btn btn-primary-full">Coming Soon</button>
           </div>
         </div>
       </section>
@@ -168,15 +169,21 @@ const LandingPage: React.FC = () => {
 };
 
 interface FeatureCardProps {
-  emoji: string;
+  icon: LucideIcon;
   title: string;
   text: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ emoji, title, text }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({
+  icon: Icon,
+  title,
+  text,
+}) => {
   return (
     <div className="feature-card">
-      <div className="feature-card-icon">{emoji}</div>
+      <div className="feature-card-icon">
+        <Icon size={26} aria-hidden="true" />
+      </div>
       <h3>{title}</h3>
       <p>{text}</p>
     </div>

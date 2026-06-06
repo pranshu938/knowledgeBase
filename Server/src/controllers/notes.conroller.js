@@ -41,11 +41,21 @@ const updateNote = async (req, res) => {
       ...(content !== undefined ? { content } : {}),
       ...(tags !== undefined ? { tags } : {}),
     },
-    { new: true }
+    { new: true },
   ).lean();
 
   if (!note) return res.status(404).json({ message: "Note not found" });
   res.status(200).json({ note });
 };
 
-module.exports = { createNote, getNotes, getNoteById, updateNote };
+const deleteNote = async (req, res) => {
+  const note = await Note.findOneAndDelete({
+    _id: req.params.id,
+    userId: req.user.userId,
+  }).lean();
+
+  if (!note) return res.status(404).json({ message: "Note not found" });
+  res.status(200).json({ note });
+};
+
+module.exports = { createNote, getNotes, getNoteById, updateNote, deleteNote };

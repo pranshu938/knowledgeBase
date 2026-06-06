@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getNotes, type Note } from "../services/notes";
+import { Copy, Plus, Trash2 } from "lucide-react";
+import {
+  createNote,
+  deleteNote,
+  getNotes,
+  type Note,
+} from "../services/notes";
 import { useToast } from "../toast/ToastProvider";
 
 export default function NotesPage() {
@@ -9,6 +15,10 @@ export default function NotesPage() {
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"updated" | "created" | "title">("updated");
@@ -29,6 +39,62 @@ export default function NotesPage() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleDelete = async () => {
+    if (!noteToDelete) return;
+
+    try {
+      setDeleting(true);
+      await deleteNote(noteToDelete._id);
+      setNotes((current) =>
+        current.filter((item) => item._id !== noteToDelete._id)
+      );
+      setNoteToDelete(null);
+      showToast({
+        title: "Deleted",
+        type: "success",
+        message: "Note deleted successfully.",
+      });
+    } catch (e: any) {
+      showToast({ title: "Error", type: "error", message: e.message });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCreate = async () => {
+    try {
+      setCreating(true);
+      const note = await createNote({});
+      navigate(`/app/notes/${note._id}`);
+    } catch (e: any) {
+      showToast({ title: "Error", type: "error", message: e.message });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDuplicate = async (note: Note) => {
+    try {
+      setDuplicatingId(note._id);
+      const duplicate = await createNote({
+        title: `${note.title || "Untitled"} Copy`,
+        content: note.content || "",
+        tags: note.tags || [],
+      });
+
+      showToast({
+        title: "Duplicated",
+        type: "success",
+        message: "Note copied successfully.",
+      });
+      navigate(`/app/notes/${duplicate._id}`);
+    } catch (e: any) {
+      showToast({ title: "Error", type: "error", message: e.message });
+    } finally {
+      setDuplicatingId(null);
+    }
+  };
 
   const visibleNotes = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -111,14 +177,46 @@ export default function NotesPage() {
       </div>
 
       {loading ? (
-        <div style={{ padding: 12 }}>Loading…</div>
+        <div className="notes-grid" aria-label="Loading notes">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <article className="note-card note-card-skeleton" key={index}>
+              <div className="note-card-top">
+                <div className="note-card-main">
+                  <div className="skeleton-line skeleton-title" />
+                  <div className="skeleton-line skeleton-meta" />
+                </div>
+                <div className="skeleton-icon" />
+              </div>
+
+              <div className="skeleton-preview">
+                <div className="skeleton-line" />
+                <div className="skeleton-line skeleton-short" />
+              </div>
+
+              <div className="note-tags">
+                <div className="skeleton-chip" />
+                <div className="skeleton-chip skeleton-chip-short" />
+              </div>
+            </article>
+          ))}
+        </div>
       ) : visibleNotes.length === 0 ? (
         <div className="notes-empty">
           <div className="notes-empty-card">
             <h3>No notes yet</h3>
             <p>
-              Click <b>+ New note</b> in the sidebar to start writing.
+              Start with a blank note and build your knowledge base from
+              there.
             </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleCreate}
+              disabled={creating}
+            >
+              <Plus size={16} />
+              <span>{creating ? "Creating..." : "Create first note"}</span>
+            </button>
           </div>
         </div>
       ) : (
@@ -151,6 +249,39 @@ export default function NotesPage() {
                         : "—"}
                     </div>
                   </div>
+                  <div className="note-actions">
+                    <button
+                      type="button"
+                      className="btn btn-ghost note-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate(n);
+                      }}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      disabled={duplicatingId === n._id}
+                      aria-label={`Duplicate ${n.title || "Untitled"}`}
+                      title="Duplicate note"
+                    >
+                      <Copy size={16} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger-ghost note-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setNoteToDelete(n);
+                      }}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      aria-label={`Delete ${n.title || "Untitled"}`}
+                      title="Delete note"
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
 
                 <p className="note-preview">
@@ -169,6 +300,55 @@ export default function NotesPage() {
           </div>
         </>
       )}
+
+      {noteToDelete ? (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onClick={() => {
+            if (!deleting) setNoteToDelete(null);
+          }}
+        >
+          <div
+            className="confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-note-title"
+            aria-describedby="delete-note-description"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="confirm-modal-icon" aria-hidden="true">
+              <Trash2 size={22} />
+            </div>
+            <div className="confirm-modal-body">
+              <h3 id="delete-note-title">Delete note?</h3>
+              <p id="delete-note-description">
+                This will permanently delete{" "}
+                <strong>{noteToDelete.title || "Untitled"}</strong>. This
+                action cannot be undone.
+              </p>
+            </div>
+            <div className="confirm-modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setNoteToDelete(null)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete note"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

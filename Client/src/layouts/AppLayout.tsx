@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  BarChart3,
+  Bot,
+  ChevronDown,
+  FileText,
+  FolderOpen,
+  Plus,
+  Settings,
+} from "lucide-react";
 import { logout } from "../services/auth/logout";
 import { useToast } from "../toast/ToastProvider";
 import { createNote } from "../services/notes";
@@ -33,7 +42,7 @@ function AppLayoutTopbarRight({ logout }: { logout: () => void }) {
           onClick={() => setOpen(!open)}
         >
           <span className="app-avatar">P</span>
-          <span className="app-avatar-caret">▾</span>
+          <ChevronDown className="app-avatar-caret" size={14} />
         </button>
 
         {open && (
@@ -85,7 +94,8 @@ const AppLayout: React.FC = () => {
 
         {/* Primary CTA */}
         <button className="app-sidebar-cta" onClick={handleCreate}>
-          + New note
+          <Plus size={16} />
+          <span>New note</span>
         </button>
 
         {/* Main navigation */}
@@ -93,19 +103,19 @@ const AppLayout: React.FC = () => {
           <p className="app-sidebar-section-title">Main</p>
           <nav className="app-nav">
             <NavLink to="/app" end className="app-nav-link">
-              <span>📊</span>
+              <BarChart3 className="app-nav-icon" size={17} />
               <span>Overview</span>
             </NavLink>
             <NavLink to="/app/notes" className="app-nav-link">
-              <span>📝</span>
+              <FileText className="app-nav-icon" size={17} />
               <span>Notes</span>
             </NavLink>
             <NavLink to="/app/uploads" className="app-nav-link">
-              <span>📂</span>
+              <FolderOpen className="app-nav-icon" size={17} />
               <span>Uploads</span>
             </NavLink>
             <NavLink to="/app/chat" className="app-nav-link">
-              <span>🤖</span>
+              <Bot className="app-nav-icon" size={17} />
               <span>AI Chat</span>
             </NavLink>
           </nav>
@@ -125,7 +135,10 @@ const AppLayout: React.FC = () => {
         </div>
 
         <div className="app-sidebar-footer">
-          <button className="app-sidebar-footer-btn">Settings</button>
+          <button className="app-sidebar-footer-btn">
+            <Settings size={15} />
+            <span>Settings</span>
+          </button>
         </div>
       </aside>
 

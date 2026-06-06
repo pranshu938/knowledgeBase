@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
+import { Menu } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -17,22 +18,22 @@ const Navbar: React.FC = () => {
           onClick={() => setOpen((prev) => !prev)}
           aria-label="Toggle navigation"
         >
-          ☰
+          <Menu size={22} />
         </button>
 
         <nav className={`nav-links ${open ? "nav-links-open" : ""}`}>
           <NavLink to="/" className="nav-link">
             Home
           </NavLink>
-          <a href="#features" className="nav-link">
+          <Link to="/#features" className="nav-link">
             Features
-          </a>
-          <a href="#how-it-works" className="nav-link">
+          </Link>
+          <Link to="/#how-it-works" className="nav-link">
             How it works
-          </a>
-          <a href="#pricing" className="nav-link">
+          </Link>
+          <Link to="/#pricing" className="nav-link">
             Pricing
-          </a>
+          </Link>
           <NavLink to="/login" className="nav-link nav-link-muted">
             Log in
           </NavLink>

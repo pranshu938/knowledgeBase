@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import { login } from "../services/auth/login";
 import { useNavigate } from "react-router-dom";
 
@@ -47,7 +48,7 @@ const LoginPage: React.FC = () => {
         </p>
         {error && (
           <div className="auth-error-banner">
-            <span className="auth-error-icon">⚠️</span>
+            <AlertTriangle className="auth-error-icon" size={16} />
             <span className="auth-error-text">{error}</span>
           </div>
         )}
