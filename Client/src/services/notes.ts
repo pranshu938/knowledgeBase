@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../lib/api";
 
 export type Note = {
@@ -7,6 +8,13 @@ export type Note = {
   tags?: string[];
   updatedAt?: string;
   createdAt?: string;
+};
+
+export type NoteStats = {
+  totalNotes: number;
+  totalWords: number;
+  uniqueTags: number;
+  recentNotes: Pick<Note, "_id" | "title" | "updatedAt">[];
 };
 
 export const getNotes = async (): Promise<Note[]> => {
@@ -45,4 +53,16 @@ export async function updateNote(
 export async function deleteNote(id: string) {
   const res = await api.delete(`/notes/${id}`);
   return res.data.note as Note;
+}
+
+export async function getNoteStats(): Promise<NoteStats> {
+  try {
+    const res = await api.get("/notes/stats");
+    return res.data.stats as NoteStats;
+  } catch (err: unknown) {
+    throw new Error(
+      (axios.isAxiosError(err) && err.response?.data?.message) ||
+        "Failed to load dashboard stats"
+    );
+  }
 }

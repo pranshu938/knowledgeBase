@@ -1,11 +1,12 @@
-const validate = (schema) => {
+const validate = (schema, source = "body") => {
   return (req, res, next) => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(req[source]);
 
     if (!result.success) {
       return res.status(400).json({
         status: "error",
-        errors: result.error.errors.map((err) => ({
+        message: "Validation failed",
+        errors: result.error.issues.map((err) => ({
           path: err.path.join("."),
           message: err.message,
         })),
@@ -13,7 +14,7 @@ const validate = (schema) => {
     }
 
     // validated + cleaned data (e.g. trims, transforms, etc)
-    req.body = result.data;
+    req[source] = result.data;
     next();
   };
 };

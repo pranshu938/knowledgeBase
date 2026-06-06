@@ -3,6 +3,7 @@ const express = require("express");
 const authRoutes = require("./auth.routes");
 const noteRoutes = require("./notes.routes");
 const authMiddleWare = require("../middleware/auth.middleware");
+const { authCookieOptions } = require("../utils/authCookie");
 
 const router = express.Router();
 
@@ -18,12 +19,7 @@ router.get("/me", authMiddleWare, (req, res) => {
   res.status(200).json({ status: "verified" });
 });
 router.post("/logout", authMiddleWare, (req, res) => {
-  res.clearCookie("access_token", {
-    path: "/",
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+  res.clearCookie("access_token", authCookieOptions);
   res.status(200).json({
     message: "success",
   });

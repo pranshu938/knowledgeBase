@@ -3,6 +3,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const {
+  authCookieOptions,
+  authCookieMaxAge,
+} = require("../utils/authCookie");
 
 // POST /api/auth/register
 const register = async (req, res, next) => {
@@ -33,11 +37,8 @@ const register = async (req, res, next) => {
       expiresIn: "7d",
     });
     res.cookie("access_token", token, {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production" ? true : false, // true in production (HTTPS)
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      ...authCookieOptions,
+      maxAge: authCookieMaxAge,
     });
 
     return res.status(201).json({
@@ -73,11 +74,8 @@ const login = async (req, res, next) => {
       expiresIn: "7d",
     });
     res.cookie("access_token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false, // true in production (HTTPS)
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      ...authCookieOptions,
+      maxAge: authCookieMaxAge,
     });
     return res.json({
       message: "Login successful",
